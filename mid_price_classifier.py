@@ -90,5 +90,4 @@ def run(PATH, k, N):
     model = create_model()
     accuracy = fit_and_evaluate_model(model, X_train, X_test, y_train, y_test)
     print("Accuracy is {} %".format(accuracy))
-
-    
+ 
