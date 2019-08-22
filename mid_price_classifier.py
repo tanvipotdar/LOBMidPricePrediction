@@ -84,8 +84,10 @@ def fit_and_evaluate_model(model, X_train, X_test, y_train, y_test):
     return accuracy*100
 
 
-def run(PATH, k, N):
+def run(PATH, k):
     data = get_data(path=PATH)
+    N = len(data) // 100
+    
     normalised_data  = normalise_data(data)
     data_with_midprice = smooth_midprice_using_k_lookahead(k, normalised_data)
     labeled_data = create_midprice_labels(data_with_midprice)
