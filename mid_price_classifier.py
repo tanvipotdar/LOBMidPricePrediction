@@ -9,7 +9,10 @@ from sklearn.model_selection import train_test_split
 
 
 def get_data(path):
-    orderbook = pd.read_csv(path)
+    orderbook = pd.read_csv(path, header=None)
+    col_names = ['ask_price_', 'ask_size_', 'bid_price_', 'bid_size_']
+    nums = map(str, range(1,11))
+    orderbook.columns = [y + x for x in nums for y in col_names]
     return orderbook
 
 
