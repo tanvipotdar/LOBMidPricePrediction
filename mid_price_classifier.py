@@ -45,7 +45,7 @@ def reshape_and_categorise_data(normalised_data, N):
     data = normalised_data[:N]
     cols = data.columns.to_list()[:40]
     input_data = data[cols]
-    input_array = input_data.to_numpy().reshape(N/100,100,40,1)
+    input_array = input_data.to_numpy().reshape(N//100,100,40,1)
 
     output_data = data.label.to_numpy()[::-100][::-1]
     onehot_encoder = OneHotEncoder(sparse=False)
@@ -86,7 +86,7 @@ def fit_and_evaluate_model(model, X_train, X_test, y_train, y_test):
 
 def run(PATH, k):
     data = get_data(path=PATH)
-    N = len(data) // 100
+    N = len(data) - len(data)%100
     
     normalised_data  = normalise_data(data)
     data_with_midprice = smooth_midprice_using_k_lookahead(k, normalised_data)
