@@ -6,6 +6,13 @@ from tensorflow import keras
 from scipy.stats import zscore
 from sklearn.preprocessing import OneHotEncoder
 from sklearn.model_selection import train_test_split
+from sklearn.metrics import classification_report, confusion_matrix
+from matplotlib import pyplot as plt
+
+
+BATCH_SIZE = 100
+EPOCHS = 100
+VALIDATION_SPLIT=0.2
 
 
 def get_data(path):
@@ -76,23 +83,49 @@ def create_model():
     return model
 
 
+def plots(history):
+    plt.figure(figsize=(15,10))
+    plt.subplot(2,1,1)
+    plt.plot(history.history['loss'],'b--',lw=2,label='train_loss')
+    plt.plot(history.history['val_loss'],'g-',lw=2,label='val_loss')
+    plt.legend()
+    # plt.ylim([.5,1.3])
+    plt.xlabel('Number of epochs')
+    plt.ylabel('Loss')
+    plt.subplot(2,1,2)
+    plt.plot(history.history['acc'],'b--',lw=2,label='train_acc')
+    plt.plot(history.history['val_acc'],'g-',lw=2,label='val_acc')
+    plt.legend()
+    # plt.ylim([.2,1.0])
+    plt.xlabel('Number of epochs')
+    plt.ylabel('Accuracy')
+
+
 def fit_and_evaluate_model(model, X_train, X_test, y_train, y_test):
-    BATCH_SIZE = 100
-    EPOCHS = 100
-    model.fit(X_train, y_train, epochs=EPOCHS, batch_size=BATCH_SIZE)
+    history = model.fit(X_train, y_train, epochs=EPOCHS, batch_size=BATCH_SIZE, validation_split=VALIDATION_SPLIT)
+    plots(history)
     _, accuracy = model.evaluate(X_test, y_test, batch_size=BATCH_SIZE)
     return accuracy*100
+
+
+def get_report(model, X_test, y_test):
+    target_names = ['down', 'stationary', 'up']
+    y_pred = model.predict(X_test)
+    y_pred_bool = np.argmax(y_pred, axis=1)
+    y_test_bool = np.argmax(y_test, axis=1)
+    print(classification_report(y_pred_bool, y_test_bool, target_names=target_names))
+    print(confusion_matrix(y_test_bool, y_pred_bool, labels=[0,1,2]))
 
 
 def run(PATH, k):
     data = get_data(path=PATH)
     N = len(data) - len(data)%100
-    
     normalised_data  = normalise_data(data)
     data_with_midprice = smooth_midprice_using_k_lookahead(k, normalised_data)
     labeled_data = create_midprice_labels(data_with_midprice)
     X_train, X_test, y_train, y_test = reshape_and_categorise_data(normalised_data, N)
     model = create_model()
     accuracy = fit_and_evaluate_model(model, X_train, X_test, y_train, y_test)
+    get_report(model, X_test, y_test)
     print("Accuracy is {} %".format(accuracy))
  
