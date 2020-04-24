@@ -1,1 +1,1 @@
-# limit_order_book_models
+# Mid-Price Prediction in a Limit Order Book using Deep Learning Models
